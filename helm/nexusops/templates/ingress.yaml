@@ -1,0 +1,49 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/websocket-services: {{ printf "%s-backend-dotnet" .Release.Name | quote }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.global.domain }}
+      secretName: {{ .Values.ingress.tlsSecretName }}
+  rules:
+    - host: {{ .Values.global.domain }}
+      http:
+        paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-backend-ai-fastapi
+                port:
+                  number: {{ .Values.services.backendAiFastapi.port }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-backend-dotnet
+                port:
+                  number: {{ .Values.services.backendDotnet.port }}
+          - path: /hubs
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-backend-dotnet
+                port:
+                  number: {{ .Values.services.backendDotnet.port }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-frontend-web
+                port:
+                  number: {{ .Values.services.frontendWeb.port }}
+{{- end }}

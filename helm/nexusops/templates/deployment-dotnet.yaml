@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend-dotnet
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.backendDotnet.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-backend-dotnet
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backend-dotnet
+    spec:
+      containers:
+        - name: backend-dotnet
+          image: {{ .Values.services.backendDotnet.image }}
+          ports:
+            - containerPort: {{ .Values.services.backendDotnet.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-config
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/workflows/health
+              port: {{ .Values.services.backendDotnet.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: {{ .Values.services.backendDotnet.resources.requests.cpu }}
+              memory: {{ .Values.services.backendDotnet.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.services.backendDotnet.resources.limits.cpu }}
+              memory: {{ .Values.services.backendDotnet.resources.limits.memory }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-backend-dotnet
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+    - port: {{ .Values.services.backendDotnet.port }}
+      targetPort: {{ .Values.services.backendDotnet.port }}
+      name: http
+  selector:
+    app: {{ .Release.Name }}-backend-dotnet

@@ -1,0 +1,43 @@
+{{- if .Values.services.backendDotnet.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-backend-dotnet-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-backend-dotnet
+  minReplicas: {{ .Values.services.backendDotnet.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.backendDotnet.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.services.backendDotnet.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}
+---
+{{- if .Values.services.backendAiFastapi.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-backend-ai-fastapi-hpa
+  namespace: {{ .Values.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-backend-ai-fastapi
+  minReplicas: {{ .Values.services.backendAiFastapi.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.services.backendAiFastapi.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.services.backendAiFastapi.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

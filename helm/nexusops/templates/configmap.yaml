@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  namespace: {{ .Values.namespace }}
+data:
+  POSTGRES_DB: {{ .Values.database.postgres.dbName | quote }}
+  POSTGRES_USER: {{ .Values.database.postgres.username | quote }}
+  POSTGRES_HOST: {{ printf "%s-postgres" .Release.Name | quote }}
+  POSTGRES_PORT: "5432"
+  REDIS_HOST: {{ printf "%s-redis" .Release.Name | quote }}
+  REDIS_PORT: "6379"
+  RABBITMQ_HOST: {{ printf "%s-rabbitmq" .Release.Name | quote }}
+  RABBITMQ_PORT: "5672"
+  DOTNET_WEBHOOK_URL: {{ printf "http://%s-backend-dotnet:5000/api/workflows/webhook/anomaly-alert" .Release.Name | quote }}
+  NEXT_PUBLIC_DOTNET_API_URL: {{ printf "http://%s-backend-dotnet:5000" .Release.Name | quote }}
+  NEXT_PUBLIC_FASTAPI_AI_URL: {{ printf "http://%s-backend-ai-fastapi:8000" .Release.Name | quote }}

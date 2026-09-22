@@ -1,0 +1,74 @@
+namespace: nexusops
+
+global:
+  environment: production
+  domain: nexusops.enterprise.internal
+
+database:
+  postgres:
+    image: pgvector/pgvector:pg16
+    dbName: nexusops_db
+    username: nexus_admin
+    password: nexus_secret_123
+    storageSize: 10Gi
+
+cache:
+  redis:
+    image: redis:7-alpine
+
+messaging:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    password: nexus_secret_123
+
+services:
+  backendDotnet:
+    image: nexusops/backend-dotnet:latest
+    replicaCount: 2
+    port: 5000
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 75
+
+  backendAiFastapi:
+    image: nexusops/backend-ai-fastapi:latest
+    replicaCount: 2
+    port: 8000
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1500m
+        memory: 2Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilizationPercentage: 80
+
+  frontendWeb:
+    image: nexusops/frontend-web:latest
+    replicaCount: 2
+    port: 3000
+    resources:
+      requests:
+        cpu: 150m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  tlsSecretName: nexusops-tls-cert

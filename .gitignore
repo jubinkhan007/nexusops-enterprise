@@ -1,0 +1,20 @@
+# Dependencies & Environments
+node_modules/
+.venv/
+.dotnet/
+.env
+.env.local
+
+# Build outputs
+bin/
+obj/
+.next/
+out/
+build/
+dist/
+*.user
+*.suo
+
+# Operating System
+.DS_Store
+Thumbs.db

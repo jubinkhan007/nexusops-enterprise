@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend-ai-fastapi
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.backendAiFastapi.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-backend-ai-fastapi
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backend-ai-fastapi
+    spec:
+      containers:
+        - name: backend-ai-fastapi
+          image: {{ .Values.services.backendAiFastapi.image }}
+          ports:
+            - containerPort: {{ .Values.services.backendAiFastapi.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-config
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: {{ .Values.services.backendAiFastapi.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: {{ .Values.services.backendAiFastapi.resources.requests.cpu }}
+              memory: {{ .Values.services.backendAiFastapi.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.services.backendAiFastapi.resources.limits.cpu }}
+              memory: {{ .Values.services.backendAiFastapi.resources.limits.memory }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-backend-ai-fastapi
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+    - port: {{ .Values.services.backendAiFastapi.port }}
+      targetPort: {{ .Values.services.backendAiFastapi.port }}
+      name: http
+  selector:
+    app: {{ .Release.Name }}-backend-ai-fastapi

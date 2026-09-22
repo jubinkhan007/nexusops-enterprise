@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend-web
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.services.frontendWeb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-frontend-web
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-frontend-web
+    spec:
+      containers:
+        - name: frontend-web
+          image: {{ .Values.services.frontendWeb.image }}
+          ports:
+            - containerPort: {{ .Values.services.frontendWeb.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-config
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.services.frontendWeb.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: {{ .Values.services.frontendWeb.resources.requests.cpu }}
+              memory: {{ .Values.services.frontendWeb.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.services.frontendWeb.resources.limits.cpu }}
+              memory: {{ .Values.services.frontendWeb.resources.limits.memory }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-frontend-web
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+    - port: {{ .Values.services.frontendWeb.port }}
+      targetPort: {{ .Values.services.frontendWeb.port }}
+      name: http
+  selector:
+    app: {{ .Release.Name }}-frontend-web

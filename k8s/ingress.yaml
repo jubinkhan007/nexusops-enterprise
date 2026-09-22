@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nexusops-ingress
+  namespace: nexusops
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/websocket-services: "backend-dotnet"
+spec:
+  tls:
+    - hosts:
+        - nexusops.enterprise.internal
+      secretName: nexusops-tls-cert
+  rules:
+    - host: nexusops.enterprise.internal
+      http:
+        paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-ai-fastapi
+                port:
+                  number: 8000
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-dotnet
+                port:
+                  number: 5000
+          - path: /hubs
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-dotnet
+                port:
+                  number: 5000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-web
+                port:
+                  number: 3000

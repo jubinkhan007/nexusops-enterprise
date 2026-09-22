@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NexusOps CloudEvent Specification",
+  "type": "object",
+  "properties": {
+    "specversion": { "type": "string", "enum": ["1.0"] },
+    "type": { "type": "string" },
+    "source": { "type": "string" },
+    "id": { "type": "string" },
+    "time": { "type": "string", "format": "date-time" },
+    "datacontenttype": { "type": "string", "default": "application/json" },
+    "data": { "type": "object" }
+  },
+  "required": ["specversion", "type", "source", "id", "data"]
+}

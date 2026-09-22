@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nexus_postgres
+    environment:
+      POSTGRES_DB: nexusops_db
+      POSTGRES_USER: nexus_admin
+      POSTGRES_PASSWORD: nexus_secret_123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/migrations:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    container_name: nexus_redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: nexus_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  backend-dotnet:
+    build:
+      context: ..
+      dockerfile: devops/docker/Dockerfile.dotnet
+    container_name: nexus_dotnet_api
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=nexusops_db;Username=nexus_admin;Password=nexus_secret_123
+    ports:
+      - "5050:5000"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  backend-ai-fastapi:
+    build:
+      context: ..
+      dockerfile: devops/docker/Dockerfile.fastapi
+    container_name: nexus_fastapi_ai
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+      - DOTNET_WEBHOOK_URL=http://backend-dotnet:5000/api/workflows/webhook/anomaly-alert
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+  frontend-web:
+    build:
+      context: ..
+      dockerfile: devops/docker/Dockerfile.frontend
+    container_name: nexus_frontend_web
+    environment:
+      - NEXT_PUBLIC_DOTNET_API_URL=http://backend-dotnet:5000
+      - NEXT_PUBLIC_FASTAPI_AI_URL=http://backend-ai-fastapi:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-dotnet
+      - backend-ai-fastapi
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: nexus_prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+volumes:
+  postgres_data:
+
