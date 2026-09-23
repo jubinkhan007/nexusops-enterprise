@@ -93,6 +93,26 @@ services:
     depends_on:
       - prometheus
 
+  backup-cron:
+    build:
+      context: ..
+      dockerfile: devops/docker/Dockerfile.backup
+    container_name: nexus_backup_cron
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=nexusops_db
+      - POSTGRES_USER=nexus_admin
+      - POSTGRES_PASSWORD=nexus_secret_123
+      - BACKUP_ENCRYPTION_KEY=nexusops_secure_backup_key_2026
+      - RETENTION_DAYS=30
+    volumes:
+      - backup_data:/backups
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
+  backup_data:
+
 

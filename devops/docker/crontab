@@ -1,0 +1,8 @@
+# Crontab schedule for automated NexusOps PostgreSQL backups
+# Format: min hour day month day-of-week command
+
+# Run nightly backup at 02:00 AM UTC
+0 2 * * * /app/backup_restore.sh backup >> /var/log/backup.log 2>&1
+
+# Run backup verification check at 06:00 AM UTC
+0 6 * * * /app/backup_restore.sh verify >> /var/log/backup.log 2>&1

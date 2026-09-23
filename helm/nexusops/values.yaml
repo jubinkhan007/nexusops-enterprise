@@ -60,6 +60,14 @@ services:
     image: nexusops/frontend-web:latest
     replicaCount: 2
     port: 3000
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  retentionDays: 30
+  storageSize: 50Gi
+  image: nexusops/backup-cron:latest
+
     resources:
       requests:
         cpu: 150m

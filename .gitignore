@@ -19,3 +19,8 @@ Library/
 # Operating System
 .DS_Store
 Thumbs.db
+
+# Backup Archives
+devops/backups/
+*.sql.gz.enc
+

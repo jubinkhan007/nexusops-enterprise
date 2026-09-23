@@ -1,0 +1,67 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "nexusops.fullname" . }}-backup-cronjob
+  namespace: {{ .Values.namespace | default "nexusops" }}
+  labels:
+    app.kubernetes.io/name: postgres-backup
+    app.kubernetes.io/part-of: {{ include "nexusops.name" . }}
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: postgres-backup-runner
+              image: {{ .Values.backup.image | quote }}
+              command: ["/app/backup_restore.sh", "backup"]
+              env:
+                - name: POSTGRES_HOST
+                  value: "postgres"
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_DB
+                  value: {{ .Values.database.postgres.dbName | quote }}
+                - name: POSTGRES_USER
+                  value: {{ .Values.database.postgres.username | quote }}
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "nexusops.fullname" . }}-secrets
+                      key: POSTGRES_PASSWORD
+                - name: BACKUP_ENCRYPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "nexusops.fullname" . }}-secrets
+                      key: JWT_SECRET
+                - name: RETENTION_DAYS
+                  value: {{ .Values.backup.retentionDays | quote }}
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backups
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: {{ include "nexusops.fullname" . }}-backup-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "nexusops.fullname" . }}-backup-pvc
+  namespace: {{ .Values.namespace | default "nexusops" }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.backup.storageSize }}
+{{- end }}

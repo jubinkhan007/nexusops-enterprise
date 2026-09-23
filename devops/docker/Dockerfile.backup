@@ -1,0 +1,26 @@
+FROM alpine:3.19
+
+# Install PostgreSQL client 16, OpenSSL, Bash, Gzip, Curl, AWS CLI
+RUN apk add --no-cache \
+    bash \
+    postgresql16-client \
+    openssl \
+    gzip \
+    curl \
+    aws-cli \
+    busybox-suid \
+    findutils \
+    coreutils
+
+# Create backup directory
+WORKDIR /app
+RUN mkdir -p /backups
+
+# Copy backup script and crontab
+COPY devops/scripts/backup_restore.sh /app/backup_restore.sh
+COPY devops/docker/crontab /etc/crontabs/root
+
+RUN chmod +x /app/backup_restore.sh && chmod 0644 /etc/crontabs/root
+
+# Entrypoint runs cron daemon in foreground
+CMD ["crond", "-f", "-l", "2"]
