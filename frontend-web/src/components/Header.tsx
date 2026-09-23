@@ -1,7 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
+import { Shield, UserCheck, Key } from 'lucide-react';
 
 export const Header: React.FC = () => {
+  const { user, switchRole } = useAuth();
+
   return (
     <header className="bg-slate-900/90 backdrop-blur border-b border-slate-800 text-white sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -43,8 +47,21 @@ export const Header: React.FC = () => {
           </Link>
         </nav>
 
-
         <div className="flex items-center space-x-3 text-xs">
+          {/* RBAC Role Selector Dropdown */}
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-mono">
+            <Shield className="w-3.5 h-3.5 text-indigo-400" />
+            <select
+              value={user.role}
+              onChange={(e) => switchRole(e.target.value as 'Admin' | 'Operator' | 'Auditor')}
+              className="bg-transparent text-indigo-200 font-semibold focus:outline-none cursor-pointer text-xs"
+            >
+              <option value="Admin" className="bg-slate-900 text-indigo-300">Role: Admin (Full Access)</option>
+              <option value="Operator" className="bg-slate-900 text-indigo-300">Role: Operator (Execute)</option>
+              <option value="Auditor" className="bg-slate-900 text-indigo-300">Role: Auditor (Read-Only)</option>
+            </select>
+          </div>
+
           <span className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>SignalR Active</span>

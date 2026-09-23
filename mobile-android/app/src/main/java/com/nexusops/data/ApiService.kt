@@ -3,17 +3,25 @@ package com.nexusops.data
 import com.nexusops.model.*
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface ApiService {
     @GET("api/workflows")
-    suspend fun getWorkflows(): List<WorkflowItem>
+    suspend fun getWorkflows(
+        @Header("Authorization") token: String = "Bearer mock_jwt_bearer_token_admin_2026"
+    ): List<WorkflowItem>
 
     @GET("api/analytics/summary")
-    suspend fun getAnalyticsSummary(): SystemAnalytics
+    suspend fun getAnalyticsSummary(
+        @Header("Authorization") token: String = "Bearer mock_jwt_bearer_token_admin_2026"
+    ): SystemAnalytics
 
     @POST("api/v1/rag/ask")
-    suspend fun askGeminiRAG(@Body body: RAGAskPayload): RAGResponseItem
+    suspend fun askGeminiRAG(
+        @Body body: RAGAskPayload,
+        @Header("Authorization") token: String = "Bearer mock_jwt_bearer_token_admin_2026"
+    ): RAGResponseItem
 }
 
 class NexusRepository(private val apiService: ApiService? = null) {
@@ -75,4 +83,3 @@ class NexusRepository(private val apiService: ApiService? = null) {
         )
     }
 }
-

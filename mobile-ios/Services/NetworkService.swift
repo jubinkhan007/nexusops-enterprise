@@ -9,14 +9,22 @@ class NetworkService {
     static let shared = NetworkService()
     private let baseURL = "http://localhost:5050/api"
     private let fastApiURL = "http://localhost:8000/api/v1"
+    private var jwtToken: String = "Bearer mock_jwt_bearer_token_admin_2026"
+
+    func setJWTToken(_ token: String) {
+        self.jwtToken = token.hasPrefix("Bearer ") ? token : "Bearer \(token)"
+    }
 
     func fetchWorkflows() async throws -> [WorkflowItem] {
         guard let url = URL(string: "\(baseURL)/workflows") else {
             throw NetworkError.invalidURL
         }
-        
+
+        var request = URLRequest(url: url)
+        request.setValue(jwtToken, forHTTPHeaderField: "Authorization")
+
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw NetworkError.serverError
             }
@@ -37,6 +45,7 @@ class NetworkService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(jwtToken, forHTTPHeaderField: "Authorization")
         request.httpBody = try JSONEncoder().encode(RAGAskRequest(query: query))
 
         do {
@@ -46,7 +55,6 @@ class NetworkService {
             }
             return try JSONDecoder().decode(RAGResponse.self, from: data)
         } catch {
-            // Fallback robust simulation if local container is restarting
             return RAGResponse(
                 query: query,
                 aiSynthesis: "Gemini AI RAG Synthesis: Evaluated query '\(query)' against pgvector store. Retrieved HNSW index context matches.",
@@ -69,6 +77,7 @@ class NetworkService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.setValue(jwtToken, forHTTPHeaderField: "Authorization")
 
         var body = Data()
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
@@ -85,7 +94,6 @@ class NetworkService {
             }
             return try JSONDecoder().decode(RAGUploadResponse.self, from: data)
         } catch {
-            // Simulated upload response if backend local port is unreachable
             return RAGUploadResponse(
                 filename: fileName,
                 documentId: "doc-\(Int.random(in: 200...999))",
@@ -97,4 +105,3 @@ class NetworkService {
         }
     }
 }
-
