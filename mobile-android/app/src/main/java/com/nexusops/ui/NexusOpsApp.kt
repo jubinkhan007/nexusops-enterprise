@@ -6,14 +6,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.nexusops.data.RealtimeStreamService
-import com.nexusops.ui.screens.ActivityFeedScreen
-import com.nexusops.ui.screens.DashboardScreen
-import com.nexusops.ui.screens.RAGSearchScreen
+import com.nexusops.ui.screens.*
 
 enum class NexusTab(val title: String) {
     DASHBOARD("Dashboard"),
+    WORKFLOWS("Workflows"),
     RAG_SEARCH("Gemini RAG"),
-    LIVE_FEED("Live Feed")
+    LIVE_FEED("Live Feed"),
+    REPORTS("Reports")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,6 +33,17 @@ fun NexusOpsApp() {
                     onClick = { selectedTab = NexusTab.DASHBOARD },
                     label = { Text(NexusTab.DASHBOARD.title) },
                     icon = { Text("📊") },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF3B82F6),
+                        indicatorColor = Color(0xFF1E293B)
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = selectedTab == NexusTab.WORKFLOWS,
+                    onClick = { selectedTab = NexusTab.WORKFLOWS },
+                    label = { Text(NexusTab.WORKFLOWS.title) },
+                    icon = { Text("⚡") },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF3B82F6),
                         indicatorColor = Color(0xFF1E293B)
@@ -64,9 +75,20 @@ fun NexusOpsApp() {
                                 }
                             }
                         ) {
-                            Text("⚡")
+                            Text("🔔")
                         }
                     },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF3B82F6),
+                        indicatorColor = Color(0xFF1E293B)
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = selectedTab == NexusTab.REPORTS,
+                    onClick = { selectedTab = NexusTab.REPORTS },
+                    label = { Text(NexusTab.REPORTS.title) },
+                    icon = { Text("📜") },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF3B82F6),
                         indicatorColor = Color(0xFF1E293B)
@@ -81,8 +103,10 @@ fun NexusOpsApp() {
         ) {
             when (selectedTab) {
                 NexusTab.DASHBOARD -> DashboardScreen()
+                NexusTab.WORKFLOWS -> WorkflowsScreen()
                 NexusTab.RAG_SEARCH -> RAGSearchScreen()
                 NexusTab.LIVE_FEED -> ActivityFeedScreen()
+                NexusTab.REPORTS -> ExecutiveReportsScreen()
             }
         }
     }

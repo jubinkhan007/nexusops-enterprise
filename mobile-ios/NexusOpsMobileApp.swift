@@ -12,6 +12,11 @@ struct NexusOpsMobileApp: App {
                         Label("Dashboard", systemImage: "chart.bar.fill")
                     }
 
+                WorkflowsView()
+                    .tabItem {
+                        Label("Workflows", systemImage: "bolt.horizontal.circle.fill")
+                    }
+
                 RAGSearchView()
                     .tabItem {
                         Label("Gemini RAG", systemImage: "magnifyingglass.circle.fill")
@@ -22,9 +27,13 @@ struct NexusOpsMobileApp: App {
                         Label("Live Feed", systemImage: "bell.badge.fill")
                     }
                     .badge(streamService.unreadCount > 0 ? "\(streamService.unreadCount)" : nil)
+
+                ExecutiveReportsView()
+                    .tabItem {
+                        Label("Reports", systemImage: "doc.text.fill")
+                    }
             }
             .preferredColorScheme(.dark)
         }
     }
 }
-
