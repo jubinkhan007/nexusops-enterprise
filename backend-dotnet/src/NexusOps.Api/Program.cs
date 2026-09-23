@@ -36,6 +36,19 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseAuthorization();
 
+// OpenTelemetry Distributed Tracing & W3C Trace Context Middleware
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Headers.ContainsKey("traceparent"))
+    {
+        var traceId = Guid.NewGuid().ToString("N");
+        var spanId = Guid.NewGuid().ToString("N").Substring(0, 16);
+        context.Request.Headers["traceparent"] = $"00-{traceId}-{spanId}-01";
+    }
+    context.Response.Headers["traceparent"] = context.Request.Headers["traceparent"];
+    await next();
+});
+
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 

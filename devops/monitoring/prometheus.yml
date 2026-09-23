@@ -4,10 +4,11 @@ global:
 
 scrape_configs:
   - job_name: 'dotnet_api'
+    metrics_path: '/metrics'
     static_configs:
       - targets: ['backend-dotnet:5000']
 
   - job_name: 'fastapi_ai'
-    metrics_path: '/metrics'
+    metrics_path: '/api/v1/metrics'
     static_configs:
       - targets: ['backend-ai-fastapi:8000']

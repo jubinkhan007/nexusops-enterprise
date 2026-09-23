@@ -1,0 +1,92 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Total Workflow Executions (.NET & FastAPI)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "nexus_workflow_executions_total + nexus_dotnet_workflow_executions_total",
+          "legendFormat": "Executions"
+        }
+      ]
+    },
+    {
+      "title": "ML Anomalies Detected",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        {
+          "expr": "nexus_ml_anomalies_detected_total",
+          "legendFormat": "Anomalies"
+        }
+      ]
+    },
+    {
+      "title": "SignalR Active WebSockets",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "nexus_signalr_active_connections",
+          "legendFormat": "Sockets"
+        }
+      ]
+    },
+    {
+      "title": "System Operational Health Score",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "expr": "nexus_system_health_score",
+          "legendFormat": "Health %"
+        }
+      ]
+    },
+    {
+      "title": "P95 API Latency Over Time (Seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        {
+          "expr": "nexus_api_latency_seconds_p95",
+          "legendFormat": "FastAPI P95"
+        },
+        {
+          "expr": "nexus_dotnet_api_latency_seconds_p95",
+          "legendFormat": ".NET API P95"
+        }
+      ]
+    },
+    {
+      "title": "Gemini RAG Vector Store Queries & Index Count",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [
+        {
+          "expr": "nexus_vector_rag_queries_total",
+          "legendFormat": "RAG Queries"
+        },
+        {
+          "expr": "nexus_vector_documents_indexed",
+          "legendFormat": "Indexed Docs"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["nexusops", "opentelemetry", "prometheus"],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "NexusOps Enterprise Operational Dashboard",
+  "uid": "nexusops-telemetry"
+}

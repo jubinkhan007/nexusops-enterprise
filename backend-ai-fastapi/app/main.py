@@ -18,6 +18,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_opentelemetry_tracing(request, call_next):
+    traceparent = request.headers.get("traceparent")
+    if not traceparent:
+        import uuid
+        trace_id = uuid.uuid4().hex
+        span_id = uuid.uuid4().hex[:16]
+        traceparent = f"00-{trace_id}-{span_id}-01"
+    response = await call_next(request)
+    response.headers["traceparent"] = traceparent
+    return response
+
 app.include_router(router, prefix=settings.API_V1_STR)
 
 @app.get("/")
