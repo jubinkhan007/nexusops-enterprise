@@ -10,7 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ../database/migrations:/docker-entrypoint-initdb.d
+      - ../database/migrations:/docker-entrypoint-initdb.d/01_migrations
+      - ../database/seeds:/docker-entrypoint-initdb.d/02_seeds
 
   redis:
     image: redis:7-alpine

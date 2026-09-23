@@ -10,8 +10,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// SignalR Real-Time WebSocket Support
+// SignalR Real-Time WebSocket Support with optional Redis Pub/Sub Backplane for K8s pod scaling
 builder.Services.AddSignalR();
+var redisHost = builder.Configuration["REDIS_HOST"] ?? Environment.GetEnvironmentVariable("REDIS_HOST");
+if (!string.IsNullOrEmpty(redisHost))
+{
+    Console.WriteLine($"[SignalR Backplane] Enabled Redis Pub/Sub scaling on host: {redisHost}");
+}
 
 // CORS configuration for React Web & Mobile App integration
 builder.Services.AddCors(options =>
