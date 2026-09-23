@@ -42,6 +42,9 @@ export const Header: React.FC = () => {
           <Link href="/executive-reports" className="text-indigo-400 font-semibold hover:text-indigo-300 transition">
             Executive Reports
           </Link>
+          <Link href="/audit-ledger" className="text-emerald-400 font-semibold hover:text-emerald-300 transition">
+            Audit Ledger
+          </Link>
           <Link href="/code-inspector" className="text-blue-400 font-semibold hover:text-blue-300 transition flex items-center space-x-1">
             <span>Code Inspector</span>
           </Link>
