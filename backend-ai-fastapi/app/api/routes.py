@@ -79,6 +79,8 @@ nexus_api_latency_seconds_p95 0.0425
 nexus_system_health_score 99.4
 """
 
+from app.services.alert_dispatcher import alert_dispatcher
+
 @router.post("/anomaly/detect")
 
 async def detect_anomaly(req: AnomalyRequest):
@@ -89,6 +91,7 @@ async def detect_anomaly(req: AnomalyRequest):
     )
 
     webhook_triggered = False
+    alert_channels = {}
     if res.get("is_anomaly") or res.get("anomaly_score", 0) > 0.70:
         METRICS_COUNTERS["anomalies_detected"] += 1
         webhook_payload = {
@@ -101,9 +104,15 @@ async def detect_anomaly(req: AnomalyRequest):
             "detectedAt": datetime.datetime.utcnow().isoformat()
         }
         webhook_triggered = await dispatch_dotnet_webhook(webhook_payload)
+        alert_channels = await alert_dispatcher.dispatch_all_channels(
+            anomaly_score=res.get("anomaly_score", 0.0),
+            duration_ms=req.execution_duration_ms,
+            payload_kb=req.payload_size_kb
+        )
 
     res["webhook_dispatched"] = webhook_triggered
     res["target_webhook_url"] = DOTNET_WEBHOOK_URL
+    res["alert_channels_dispatched"] = alert_channels
     return res
 
 
