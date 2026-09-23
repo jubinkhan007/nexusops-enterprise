@@ -1,10 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
-import { Shield, UserCheck, Key } from 'lucide-react';
+import { Shield, Building, UserCheck } from 'lucide-react';
 
 export const Header: React.FC = () => {
-  const { user, switchRole } = useAuth();
+  const { user, switchRole, switchTenant } = useAuth();
+
+  const tenants = [
+    { id: '10000000-0000-0000-0000-000000000001', name: 'Nexus Global Enterprise' },
+    { id: '10000000-0000-0000-0000-000000000002', name: 'Acme Operations Corp' }
+  ];
 
   return (
     <header className="bg-slate-900/90 backdrop-blur border-b border-slate-800 text-white sticky top-0 z-50">
@@ -51,6 +56,25 @@ export const Header: React.FC = () => {
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">
+          {/* Multi-Tenant Switcher Dropdown */}
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 font-mono">
+            <Building className="w-3.5 h-3.5 text-blue-400" />
+            <select
+              value={user.tenantId}
+              onChange={(e) => {
+                const selected = tenants.find(t => t.id === e.target.value);
+                if (selected) switchTenant(selected.id, selected.name);
+              }}
+              className="bg-transparent text-blue-200 font-semibold focus:outline-none cursor-pointer text-xs"
+            >
+              {tenants.map(t => (
+                <option key={t.id} value={t.id} className="bg-slate-900 text-blue-300">
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* RBAC Role Selector Dropdown */}
           <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-mono">
             <Shield className="w-3.5 h-3.5 text-indigo-400" />

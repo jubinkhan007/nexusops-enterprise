@@ -3,12 +3,14 @@ import hmac
 import hashlib
 import json
 import time
-from fastapi import HTTPException, Security, Depends
+from fastapi import HTTPException, Security, Depends, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import Optional
 
 security = HTTPBearer(auto_error=False)
 
 SECRET_KEY = "NexusOps_Enterprise_Secret_Key_For_JWT_Signing_2026_Secure_Key!"
+DEFAULT_TENANT_ID = "10000000-0000-0000-0000-000000000001"
 
 def base64url_decode(input_str: str) -> bytes:
     rem = len(input_str) % 4
@@ -19,7 +21,7 @@ def base64url_decode(input_str: str) -> bytes:
 def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> dict:
     if not credentials or not credentials.credentials:
         # Return fallback guest credentials for unauthenticated requests
-        return {"sub": "anonymous", "role": "Auditor", "authenticated": False}
+        return {"sub": "anonymous", "role": "Auditor", "tenant_id": DEFAULT_TENANT_ID, "authenticated": False}
 
     token = credentials.credentials
     parts = token.split('.')
@@ -50,7 +52,11 @@ def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Security(securi
         raise HTTPException(status_code=401, detail="JWT token has expired")
 
     payload["authenticated"] = True
+    payload["tenant_id"] = payload.get("tenant_id", DEFAULT_TENANT_ID)
     return payload
+
+def get_tenant_context(x_tenant_id: Optional[str] = Header(None)) -> str:
+    return x_tenant_id if x_tenant_id else DEFAULT_TENANT_ID
 
 def require_role(allowed_roles: list):
     def role_checker(user: dict = Depends(verify_jwt_token)):

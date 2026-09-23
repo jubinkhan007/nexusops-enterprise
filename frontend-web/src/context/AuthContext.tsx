@@ -4,6 +4,8 @@ export interface UserProfile {
   username: string;
   role: 'Admin' | 'Operator' | 'Auditor';
   token: string;
+  tenantId: string;
+  tenantName: string;
 }
 
 interface AuthContextType {
@@ -11,19 +13,23 @@ interface AuthContextType {
   login: (username: string, role: 'Admin' | 'Operator' | 'Auditor') => Promise<void>;
   logout: () => void;
   switchRole: (role: 'Admin' | 'Operator' | 'Auditor') => void;
+  switchTenant: (tenantId: string, tenantName: string) => void;
 }
 
 const defaultUser: UserProfile = {
   username: 'enterprise_admin',
   role: 'Admin',
-  token: 'mock_jwt_bearer_token_admin_2026'
+  token: 'mock_jwt_bearer_token_admin_2026',
+  tenantId: '10000000-0000-0000-0000-000000000001',
+  tenantName: 'Nexus Global Enterprise'
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: defaultUser,
   login: async () => {},
   logout: () => {},
-  switchRole: () => {}
+  switchRole: () => {},
+  switchTenant: () => {}
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -33,12 +39,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedToken = localStorage.getItem('nexus_jwt_token');
     const savedRole = localStorage.getItem('nexus_jwt_role') as 'Admin' | 'Operator' | 'Auditor';
     const savedUsername = localStorage.getItem('nexus_jwt_username');
+    const savedTenantId = localStorage.getItem('nexus_tenant_id');
+    const savedTenantName = localStorage.getItem('nexus_tenant_name');
 
     if (savedToken && savedRole && savedUsername) {
       setUser({
         username: savedUsername,
         role: savedRole,
-        token: savedToken
+        token: savedToken,
+        tenantId: savedTenantId || defaultUser.tenantId,
+        tenantName: savedTenantName || defaultUser.tenantName
       });
     }
   }, []);
@@ -55,7 +65,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const newUser: UserProfile = {
           username: data.username,
           role: data.role,
-          token: data.accessToken
+          token: data.accessToken,
+          tenantId: user.tenantId,
+          tenantName: user.tenantName
         };
         setUser(newUser);
         localStorage.setItem('nexus_jwt_token', data.accessToken);
@@ -67,11 +79,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn('Auth service fallback:', e);
     }
 
-    // Fallback local JWT assignment
     const fallbackUser: UserProfile = {
       username: username || 'enterprise_admin',
       role,
-      token: `bearer_token_${role.toLowerCase()}_${Date.now()}`
+      token: `bearer_token_${role.toLowerCase()}_${Date.now()}`,
+      tenantId: user.tenantId,
+      tenantName: user.tenantName
     };
     setUser(fallbackUser);
     localStorage.setItem('nexus_jwt_token', fallbackUser.token);
@@ -80,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    setUser({ username: 'guest', role: 'Auditor', token: '' });
+    setUser({ username: 'guest', role: 'Auditor', token: '', tenantId: defaultUser.tenantId, tenantName: defaultUser.tenantName });
     localStorage.removeItem('nexus_jwt_token');
     localStorage.removeItem('nexus_jwt_role');
     localStorage.removeItem('nexus_jwt_username');
@@ -90,8 +103,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login(user.username, newRole);
   };
 
+  const switchTenant = (tenantId: string, tenantName: string) => {
+    const updated = { ...user, tenantId, tenantName };
+    setUser(updated);
+    localStorage.setItem('nexus_tenant_id', tenantId);
+    localStorage.setItem('nexus_tenant_name', tenantName);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, switchRole }}>
+    <AuthContext.Provider value={{ user, login, logout, switchRole, switchTenant }}>
       {children}
     </AuthContext.Provider>
   );
