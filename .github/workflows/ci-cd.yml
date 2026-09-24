@@ -1,0 +1,179 @@
+name: NexusOps Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-test-dotnet:
+    name: .NET 8 Microservices Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore NuGet Dependencies
+        run: dotnet restore backend-dotnet/tests/NexusOps.Api.Tests/NexusOps.Api.Tests.csproj
+
+      - name: Build ASP.NET Core Solution
+        run: dotnet build backend-dotnet/tests/NexusOps.Api.Tests/NexusOps.Api.Tests.csproj --configuration Release --no-restore
+
+      - name: Execute xUnit Unit Tests
+        run: dotnet test backend-dotnet/tests/NexusOps.Api.Tests/NexusOps.Api.Tests.csproj --configuration Release --no-build --verbosity normal
+
+  unit-test-fastapi:
+    name: Python FastAPI AI Service Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend-ai-fastapi/requirements.txt
+          pip install pytest httpx
+
+      - name: Execute PyTest Suite
+        run: pytest backend-ai-fastapi/tests/ -v
+
+  build-frontend-web:
+    name: Next.js Production Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-web
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend-web/package-lock.json
+
+      - name: Install Node Modules
+        run: npm ci
+
+      - name: Build Next.js Production Web Console
+        run: npm run build
+
+  e2e-playwright:
+    name: Playwright E2E Browser Testing
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-web
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright E2E Tests
+        run: npx playwright test
+
+  helm-k8s-validate:
+    name: Helm Chart & K8s Manifest Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Helm 3
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.13.0'
+
+      - name: Lint Helm Chart
+        run: helm lint helm/nexusops
+
+      - name: Validate Native K8s Manifests Syntax
+        run: |
+          kubectl apply --dry-run=client -f k8s/
+
+  docker-build:
+    name: Multi-Service Docker Build & Verification
+    needs: [unit-test-dotnet, unit-test-fastapi, build-frontend-web]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build .NET API Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: devops/docker/Dockerfile.dotnet
+          push: false
+          tags: nexusops/backend-dotnet:latest
+
+      - name: Build FastAPI AI Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: devops/docker/Dockerfile.fastapi
+          push: false
+          tags: nexusops/backend-ai-fastapi:latest
+
+      - name: Build Next.js Web Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: devops/docker/Dockerfile.frontend
+          push: false
+          tags: nexusops/frontend-web:latest
+
+      - name: Build Backup Cron Sidecar Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: devops/docker/Dockerfile.backup
+          push: false
+          tags: nexusops/backup-cron:latest
+
+  trivy-security-scan:
+    name: Trivy Vulnerability & SAST Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Repository Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
