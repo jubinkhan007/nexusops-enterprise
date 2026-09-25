@@ -41,6 +41,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseAuthorization();
 
+// Enterprise Security Pipeline: Web Application Firewall (WAF) & Rate Limiting
+app.UseMiddleware<NexusOps.Api.Middleware.WafSecurityMiddleware>();
+app.UseMiddleware<NexusOps.Api.Middleware.RateLimitingMiddleware>();
+
 // OpenTelemetry Distributed Tracing & W3C Trace Context Middleware
 app.Use(async (context, next) =>
 {

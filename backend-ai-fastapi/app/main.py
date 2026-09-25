@@ -9,6 +9,8 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
+from app.core.waf_middleware import WafAndRateLimitMiddleware
+
 # Enable CORS for React Web & Mobile clients
 app.add_middleware(
     CORSMiddleware,
@@ -17,6 +19,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Enterprise WAF & Rate Limiting Middleware
+app.add_middleware(WafAndRateLimitMiddleware)
 
 @app.middleware("http")
 async def add_opentelemetry_tracing(request, call_next):

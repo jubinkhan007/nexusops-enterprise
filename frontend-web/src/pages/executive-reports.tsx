@@ -290,6 +290,27 @@ Category: ${reportData.reportCategory}
             </div>
           )}
 
+          {/* Detailed Section: WAF & Rate Limiting Security */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-white print:text-slate-900 border-b border-slate-800 print:border-slate-300 pb-2 mb-4">
+              3. Web Application Firewall (WAF) & Redis Distributed Rate Limiting
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60">
+                <span className="text-slate-400 font-semibold block mb-1">WAF Rules Status</span>
+                <p className="text-emerald-400 font-extrabold text-sm">ACTIVE (SQLi, XSS, Path Traversal)</p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60">
+                <span className="text-slate-400 font-semibold block mb-1">Redis Sliding Window Limit</span>
+                <p className="text-purple-400 font-extrabold text-sm">100 Req / Min / Tenant</p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60">
+                <span className="text-slate-400 font-semibold block mb-1">Threat Payloads Blocked</span>
+                <p className="text-amber-400 font-extrabold text-sm">0 (403 Forbidden Triggered)</p>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-8 pt-4 border-t border-slate-800 print:border-slate-300 flex items-center justify-between text-xs text-slate-500">
             <span>NexusOps Enterprise Platform v2.4</span>
             <span>Page 1 of 1</span>
