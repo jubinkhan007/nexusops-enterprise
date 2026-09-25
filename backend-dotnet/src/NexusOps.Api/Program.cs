@@ -45,6 +45,9 @@ app.UseAuthorization();
 app.UseMiddleware<NexusOps.Api.Middleware.WafSecurityMiddleware>();
 app.UseMiddleware<NexusOps.Api.Middleware.RateLimitingMiddleware>();
 
+// Enterprise GraphQL API Gateway & Schema Federation (/graphql)
+app.UseMiddleware<NexusOps.Api.GraphQL.GraphQLMiddleware>();
+
 // OpenTelemetry Distributed Tracing & W3C Trace Context Middleware
 app.Use(async (context, next) =>
 {
