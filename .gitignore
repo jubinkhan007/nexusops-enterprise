@@ -22,5 +22,6 @@ Thumbs.db
 
 # Backup Archives
 devops/backups/
+devops/reports/
 *.sql.gz.enc
 
