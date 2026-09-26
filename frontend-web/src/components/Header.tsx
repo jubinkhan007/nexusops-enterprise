@@ -59,6 +59,9 @@ export const Header: React.FC = () => {
           <Link href="/architecture-c4" className="text-cyan-400 font-semibold hover:text-cyan-300 transition flex items-center space-x-1">
             <span>Architecture C4</span>
           </Link>
+          <Link href="/sso-config" className="text-indigo-400 font-semibold hover:text-indigo-300 transition flex items-center space-x-1">
+            <span>Enterprise SSO</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">
