@@ -62,6 +62,9 @@ export const Header: React.FC = () => {
           <Link href="/sso-config" className="text-indigo-400 font-semibold hover:text-indigo-300 transition flex items-center space-x-1">
             <span>Enterprise SSO</span>
           </Link>
+          <Link href="/saga-orchestrator" className="text-amber-400 font-semibold hover:text-amber-300 transition flex items-center space-x-1">
+            <span>Kafka Saga</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">
