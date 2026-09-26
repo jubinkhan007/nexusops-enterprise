@@ -56,6 +56,9 @@ export const Header: React.FC = () => {
           <Link href="/graphql-explorer" className="text-pink-400 font-semibold hover:text-pink-300 transition flex items-center space-x-1">
             <span>GraphQL Gateway</span>
           </Link>
+          <Link href="/architecture-c4" className="text-cyan-400 font-semibold hover:text-cyan-300 transition flex items-center space-x-1">
+            <span>Architecture C4</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">
