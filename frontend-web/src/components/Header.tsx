@@ -68,6 +68,9 @@ export const Header: React.FC = () => {
           <Link href="/performance-benchmarks" className="text-sky-400 font-semibold hover:text-sky-300 transition flex items-center space-x-1">
             <span>Perf Benchmarks</span>
           </Link>
+          <Link href="/multi-region" className="text-teal-400 font-semibold hover:text-teal-300 transition flex items-center space-x-1">
+            <span>Multi-Region HA</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">

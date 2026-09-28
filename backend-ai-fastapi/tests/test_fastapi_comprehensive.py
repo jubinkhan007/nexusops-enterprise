@@ -90,3 +90,13 @@ def test_performance_benchmark_telemetry():
     assert data["p95_actual_ms"] < 200
     assert "rest_api" in data["protocols"]
 
+def test_multi_region_status():
+    response = client.get("/api/v1/multi-region/status")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "OPERATIONAL"
+    assert data["primary_region"] == "us-east-1"
+    assert data["route53_health"] == "HEALTHY"
+    assert data["replication_lag_ms"] < 100.0
+
+
