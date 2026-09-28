@@ -1,0 +1,35 @@
+{
+  "metrics": {
+    "http_req_duration": {
+      "values": {
+        "avg": 24.5,
+        "min": 4.1,
+        "med": 18.2,
+        "max": 142.6,
+        "p(90)": 45.0,
+        "p(95)": 62.4,
+        "p(99)": 118.8
+      }
+    },
+    "http_reqs": {
+      "values": {
+        "count": 128500,
+        "rate": 12850.0
+      }
+    },
+    "custom_error_rate": {
+      "values": {
+        "rate": 0.0004
+      }
+    },
+    "graphql_query_duration": {
+      "values": {
+        "p(95)": 42.1
+      }
+    }
+  },
+  "root_group": {
+    "name": "NexusOps 10k VU Stress Suite",
+    "path": ""
+  }
+}

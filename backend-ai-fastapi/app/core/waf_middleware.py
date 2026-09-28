@@ -5,6 +5,8 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from urllib.parse import unquote_plus
+
 # WAF Regex Signatures
 SQLI_PATTERN = re.compile(
     r"(?i)(\b(UNION\s+SELECT|SELECT\s+.*\s+FROM|INSERT\s+INTO|DELETE\s+FROM|DROP\s+TABLE|ALTER\s+TABLE|EXEC(UTE)?\s+)\b|' OR '1'='1|--|;\s*SHUTDOWN)"
@@ -25,11 +27,12 @@ RATE_LIMIT_WINDOW = 60.0 # seconds
 def inspect_payload(text: str) -> Tuple[bool, str]:
     if not text:
         return False, ""
-    if SQLI_PATTERN.search(text):
+    unquoted = unquote_plus(text)
+    if SQLI_PATTERN.search(unquoted):
         return True, "SQL Injection Signature"
-    if XSS_PATTERN.search(text):
+    if XSS_PATTERN.search(unquoted):
         return True, "Cross-Site Scripting (XSS) Signature"
-    if PATH_TRAVERSAL_PATTERN.search(text):
+    if PATH_TRAVERSAL_PATTERN.search(unquoted):
         return True, "Path Traversal Signature"
     return False, ""
 

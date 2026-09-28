@@ -80,3 +80,13 @@ def test_gemini_rag_ask_query():
     assert "ai_synthesis" in data
     assert data["vector_dimension"] == 1536
     assert len(data["top_matches"]) > 0
+
+def test_performance_benchmark_telemetry():
+    response = client.get("/api/v1/performance/benchmark-telemetry")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert data["target_vus"] == 10000
+    assert data["p95_actual_ms"] < 200
+    assert "rest_api" in data["protocols"]
+

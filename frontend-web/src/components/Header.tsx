@@ -65,6 +65,9 @@ export const Header: React.FC = () => {
           <Link href="/saga-orchestrator" className="text-amber-400 font-semibold hover:text-amber-300 transition flex items-center space-x-1">
             <span>Kafka Saga</span>
           </Link>
+          <Link href="/performance-benchmarks" className="text-sky-400 font-semibold hover:text-sky-300 transition flex items-center space-x-1">
+            <span>Perf Benchmarks</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">
