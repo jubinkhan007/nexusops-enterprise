@@ -99,4 +99,13 @@ def test_multi_region_status():
     assert data["route53_health"] == "HEALTHY"
     assert data["replication_lag_ms"] < 100.0
 
+def test_finops_recommendations():
+    response = client.get("/api/v1/finops/recommendations")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["potential_monthly_savings_usd"] == 5150.0
+    assert data["potential_savings_percentage"] > 30.0
+    assert len(data["recommendations"]) == 3
+
+
 

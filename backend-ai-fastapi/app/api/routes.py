@@ -213,4 +213,31 @@ def get_multi_region_status():
         "status": "OPERATIONAL"
     }
 
+@router.get("/finops/recommendations")
+def get_finops_recommendations():
+    return {
+        "engine": "NexusOps FinOps AI Cost Optimization Agent",
+        "current_monthly_spend_usd": 14250.0,
+        "potential_monthly_savings_usd": 5150.0,
+        "potential_savings_percentage": 36.1,
+        "recommendations": [
+            {
+                "target": "nexusops-backend-dotnet",
+                "action": "Trim CPU request from 2000m to 800m (VPA Auto-tune)",
+                "monthly_savings_usd": 1850.0
+            },
+            {
+                "target": "backend-ai-fastapi",
+                "action": "Trim memory request from 8Gi to 3Gi",
+                "monthly_savings_usd": 2820.0
+            },
+            {
+                "target": "ebs-storage",
+                "action": "Prune 4 unattached persistent volumes",
+                "monthly_savings_usd": 480.0
+            }
+        ]
+    }
+
+
 

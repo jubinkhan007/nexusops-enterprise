@@ -1,0 +1,62 @@
+# ==============================================================================
+# NexusOps Enterprise - FinOps VPA / HPA Resource Optimization Manifests
+# ==============================================================================
+
+# 1. HorizontalPodAutoscaler (HPA) targeting 70% CPU utilization
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nexusops-backend-hpa
+  namespace: nexusops-enterprise
+  labels:
+    app.kubernetes.io/name: nexusops-backend
+    finops.nexusops.io/cost-center: engineering-core
+    finops.nexusops.io/auto-tune: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nexusops-backend-dotnet
+  minReplicas: 3
+  maxReplicas: 25
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# 2. VerticalPodAutoscaler (VPA) for Automated CPU/Memory Request Headroom Tuning
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: nexusops-backend-vpa
+  namespace: nexusops-enterprise
+  labels:
+    app.kubernetes.io/name: nexusops-backend
+    finops.nexusops.io/cost-center: engineering-core
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nexusops-backend-dotnet
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 100m
+          memory: 256Mi
+        maxAllowed:
+          cpu: 4000m
+          memory: 8Gi
+        controlledResources: ["cpu", "memory"]
