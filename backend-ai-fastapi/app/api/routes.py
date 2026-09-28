@@ -239,5 +239,17 @@ def get_finops_recommendations():
         ]
     }
 
+@router.get("/deployments/canary-telemetry")
+def get_canary_telemetry():
+    return {
+        "rollout_name": "nexusops-backend-canary",
+        "canary_version": "v2.4.0-canary",
+        "traffic_split": {"stable_percentage": 75, "canary_percentage": 25},
+        "anomaly_risk_score": 0.04,
+        "prometheus_analysis": "PASSED",
+        "recommendation": "PROCEED_TO_STEP_3"
+    }
+
+
 
 

@@ -107,5 +107,14 @@ def test_finops_recommendations():
     assert data["potential_savings_percentage"] > 30.0
     assert len(data["recommendations"]) == 3
 
+def test_canary_telemetry():
+    response = client.get("/api/v1/deployments/canary-telemetry")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["rollout_name"] == "nexusops-backend-canary"
+    assert data["traffic_split"]["canary_percentage"] == 25
+    assert data["prometheus_analysis"] == "PASSED"
+
+
 
 

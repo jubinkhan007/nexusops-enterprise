@@ -1,0 +1,68 @@
+# ==============================================================================
+# NexusOps Enterprise - Argo Rollouts Progressive Canary Deployment Manifest
+# ==============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: nexusops-backend-canary
+  namespace: nexusops-enterprise
+  labels:
+    app.kubernetes.io/name: nexusops-backend
+    app.kubernetes.io/part-of: nexusops-platform
+spec:
+  replicas: 10
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: nexusops-backend
+  template:
+    metadata:
+      labels:
+        app: nexusops-backend
+    spec:
+      containers:
+        - name: backend-dotnet
+          image: ghcr.io/jubinkhan007/nexusops-backend-dotnet:v2.4.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+  strategy:
+    canary:
+      canaryService: nexusops-backend-canary-svc
+      stableService: nexusops-backend-stable-svc
+      trafficRouting:
+        istio:
+          virtualService:
+            name: nexusops-vs
+            routes:
+              - primary
+      analysis:
+        templates:
+          - templateName: nexusops-success-rate-analysis
+        args:
+          - name: service-name
+            value: nexusops-backend-canary-svc
+      steps:
+        # Step 1: 10% Canary traffic for 5 minutes
+        - setWeight: 10
+        - pause:
+            duration: 5m
+        # Step 2: 25% Canary traffic for 10 minutes
+        - setWeight: 25
+        - pause:
+            duration: 10m
+        # Step 3: 50% Canary traffic for 15 minutes
+        - setWeight: 50
+        - pause:
+            duration: 15m
+        # Step 4: 100% Full promotion
+        - setWeight: 100
