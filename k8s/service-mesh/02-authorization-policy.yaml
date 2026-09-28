@@ -1,0 +1,45 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all-unauthenticated
+  namespace: nexusops
+spec:
+  {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: nexusops
+spec:
+  selector:
+    matchLabels:
+      app: backend-dotnet
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/nexusops/sa/frontend-web-sa"]
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT", "DELETE"]
+            ports: ["5000"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-dotnet-to-ai-fastapi
+  namespace: nexusops
+spec:
+  selector:
+    matchLabels:
+      app: backend-ai-fastapi
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/nexusops/sa/backend-dotnet-sa"]
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            ports: ["8000"]

@@ -336,6 +336,27 @@ Category: ${reportData.reportCategory}
             </div>
           </div>
 
+          {/* Detailed Section: Zero-Trust Service Mesh & mTLS v1.3 */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-white print:text-slate-900 border-b border-slate-800 print:border-slate-300 pb-2 mb-4">
+              5. Zero-Trust Microservice Service Mesh & Mutual TLS (mTLS v1.3)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60">
+                <span className="text-slate-400 font-semibold block mb-1">Istio mTLS Mode</span>
+                <p className="text-emerald-400 font-extrabold text-sm">STRICT (mTLS v1.3 Enforced)</p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60">
+                <span className="text-slate-400 font-semibold block mb-1">Authorization Policies</span>
+                <p className="text-cyan-400 font-extrabold text-sm">Principle of Least Privilege</p>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60">
+                <span className="text-slate-400 font-semibold block mb-1">NetworkPolicy Ingress</span>
+                <p className="text-indigo-400 font-extrabold text-sm">Isolated (Explicit Port Binding)</p>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-8 pt-4 border-t border-slate-800 print:border-slate-300 flex items-center justify-between text-xs text-slate-500">
             <span>NexusOps Enterprise Platform v2.4</span>
             <span>Page 1 of 1</span>

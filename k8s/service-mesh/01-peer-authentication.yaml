@@ -1,0 +1,11 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: nexusops
+  labels:
+    app.kubernetes.io/name: peer-authentication
+    app.kubernetes.io/part-of: nexusops-enterprise
+spec:
+  mtls:
+    mode: STRICT
