@@ -80,6 +80,9 @@ export const Header: React.FC = () => {
           <Link href="/incident-management" className="text-rose-400 font-semibold hover:text-rose-300 transition flex items-center space-x-1">
             <span>Incidents</span>
           </Link>
+          <Link href="/compliance" className="text-emerald-400 font-semibold hover:text-emerald-300 transition flex items-center space-x-1">
+            <span>Compliance</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">

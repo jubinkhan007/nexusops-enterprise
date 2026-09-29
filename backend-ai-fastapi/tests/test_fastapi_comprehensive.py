@@ -123,6 +123,15 @@ def test_ai_postmortem():
     assert data["severity"] == "P1-CRITICAL"
     assert data["mttr_minutes"] == 8.5
 
+def test_compliance_evidence_summary():
+    response = client.get("/api/v1/compliance/evidence-summary")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["score_percentage"] >= 95.0
+    assert data["status"] == "AUDIT READY"
+    assert data["secret_leaks_found"] == 0
+
+
 
 
 
