@@ -77,6 +77,9 @@ export const Header: React.FC = () => {
           <Link href="/canary-deployments" className="text-purple-400 font-semibold hover:text-purple-300 transition flex items-center space-x-1">
             <span>Canary Rollouts</span>
           </Link>
+          <Link href="/incident-management" className="text-rose-400 font-semibold hover:text-rose-300 transition flex items-center space-x-1">
+            <span>Incidents</span>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-3 text-xs">

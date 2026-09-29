@@ -250,6 +250,18 @@ def get_canary_telemetry():
         "recommendation": "PROCEED_TO_STEP_3"
     }
 
+@router.get("/incidents/ai-postmortem")
+def get_ai_postmortem():
+    return {
+        "incident_id": "INC-94821",
+        "title": "PostgreSQL Replica Node Latency Spike",
+        "ai_synthesis": "Root cause identified as buffer pool saturation during heavy batch ingestion. Recommended increasing shared_buffers and tuning VPA memory requests.",
+        "severity": "P1-CRITICAL",
+        "mttr_minutes": 8.5,
+        "action_items_count": 3
+    }
+
+
 
 
 

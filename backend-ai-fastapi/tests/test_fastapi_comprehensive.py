@@ -115,6 +115,15 @@ def test_canary_telemetry():
     assert data["traffic_split"]["canary_percentage"] == 25
     assert data["prometheus_analysis"] == "PASSED"
 
+def test_ai_postmortem():
+    response = client.get("/api/v1/incidents/ai-postmortem")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["incident_id"] == "INC-94821"
+    assert data["severity"] == "P1-CRITICAL"
+    assert data["mttr_minutes"] == 8.5
+
+
 
 
 
