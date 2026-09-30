@@ -37,6 +37,10 @@ class NetworkService {
         }
     }
 
+    func fetchEnterpriseOpsSummary() async -> EnterpriseOpsSummaryIOS {
+        return EnterpriseOpsSummaryIOS()
+    }
+
     func askGeminiRAG(query: String) async throws -> RAGResponse {
         guard let url = URL(string: "\(fastApiURL)/rag/ask") else {
             throw NetworkError.invalidURL

@@ -41,6 +41,10 @@ class NexusRepository(private val apiService: ApiService? = null) {
         }
     }
 
+    suspend fun getEnterpriseOpsSummary(): EnterpriseOpsSummary {
+        return EnterpriseOpsSummary()
+    }
+
     suspend fun uploadDocumentAndIndex(fileName: String, contentBytes: ByteArray): RAGUploadResponse {
         return try {
             RAGUploadResponse(

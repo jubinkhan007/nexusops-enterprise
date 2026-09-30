@@ -13,6 +13,7 @@ enum class NexusTab(val title: String) {
     WORKFLOWS("Workflows"),
     RAG_SEARCH("Gemini RAG"),
     LIVE_FEED("Live Feed"),
+    ENTERPRISE_OPS("Ops & Security"),
     REPORTS("Reports")
 }
 
@@ -55,6 +56,17 @@ fun NexusOpsApp() {
                     onClick = { selectedTab = NexusTab.RAG_SEARCH },
                     label = { Text(NexusTab.RAG_SEARCH.title) },
                     icon = { Text("🔍") },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF3B82F6),
+                        indicatorColor = Color(0xFF1E293B)
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = selectedTab == NexusTab.ENTERPRISE_OPS,
+                    onClick = { selectedTab = NexusTab.ENTERPRISE_OPS },
+                    label = { Text(NexusTab.ENTERPRISE_OPS.title) },
+                    icon = { Text("🛡️") },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF3B82F6),
                         indicatorColor = Color(0xFF1E293B)
@@ -105,6 +117,7 @@ fun NexusOpsApp() {
                 NexusTab.DASHBOARD -> DashboardScreen()
                 NexusTab.WORKFLOWS -> WorkflowsScreen()
                 NexusTab.RAG_SEARCH -> RAGSearchScreen()
+                NexusTab.ENTERPRISE_OPS -> EnterpriseOpsScreen()
                 NexusTab.LIVE_FEED -> ActivityFeedScreen()
                 NexusTab.REPORTS -> ExecutiveReportsScreen()
             }

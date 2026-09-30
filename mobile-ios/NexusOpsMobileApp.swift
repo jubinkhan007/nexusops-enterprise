@@ -22,6 +22,11 @@ struct NexusOpsMobileApp: App {
                         Label("Gemini RAG", systemImage: "magnifyingglass.circle.fill")
                     }
 
+                EnterpriseOpsView()
+                    .tabItem {
+                        Label("Ops & Security", systemImage: "shield.checkerboard")
+                    }
+
                 ActivityFeedView()
                     .tabItem {
                         Label("Live Feed", systemImage: "bell.badge.fill")
