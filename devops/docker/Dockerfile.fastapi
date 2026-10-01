@@ -2,13 +2,26 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
+# Security: Install build deps, curl for healthcheck & create non-root appuser
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -g 10001 appgroup \
+    && useradd -u 10001 -g appgroup -s /bin/false appuser
 
 COPY backend-ai-fastapi/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend-ai-fastapi/app ./app
+COPY --chown=appuser:appgroup backend-ai-fastapi/app ./app
 
 EXPOSE 8000
+ENV ENVIRONMENT=production
+
+USER 10001:10001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

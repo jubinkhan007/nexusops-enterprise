@@ -1,0 +1,76 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: nexusops
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-frontend
+  namespace: nexusops
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend-web
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: istio-system
+    ports:
+    - protocol: TCP
+      port: 3000
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: nexusops
+spec:
+  podSelector:
+    matchLabels:
+      app: backend-dotnet
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend-web
+    - podSelector:
+        matchLabels:
+          app: backend-ai-fastapi
+    ports:
+    - protocol: TCP
+      port: 5000
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-postgres
+  namespace: nexusops
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: backend-dotnet
+    - podSelector:
+        matchLabels:
+          app: backend-ai-fastapi
+    ports:
+    - protocol: TCP
+      port: 5432
+  policyTypes:
+  - Ingress

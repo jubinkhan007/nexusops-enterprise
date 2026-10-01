@@ -1,17 +1,32 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY backend-dotnet/src/NexusOps.Domain/ *.csproj ./NexusOps.Domain/
-COPY backend-dotnet/src/NexusOps.Application/ *.csproj ./NexusOps.Application/
-COPY backend-dotnet/src/NexusOps.Infrastructure/ *.csproj ./NexusOps.Infrastructure/
-COPY backend-dotnet/src/NexusOps.Api/ *.csproj ./NexusOps.Api/
+COPY backend-dotnet/src/NexusOps.Domain/*.csproj ./NexusOps.Domain/
+COPY backend-dotnet/src/NexusOps.Application/*.csproj ./NexusOps.Application/
+COPY backend-dotnet/src/NexusOps.Infrastructure/*.csproj ./NexusOps.Infrastructure/
+COPY backend-dotnet/src/NexusOps.Api/*.csproj ./NexusOps.Api/
 
 COPY backend-dotnet/src/ .
 RUN dotnet publish NexusOps.Api/NexusOps.Api.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+
+# Security: Install curl for healthcheck & create non-root user
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && addgroup --gid 10001 appgroup \
+    && adduser --uid 10001 --disabled-password --gecos "" --ingroup appgroup appuser
+
+COPY --from=build --chown=appuser:appgroup /app/publish .
+
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+USER 10001:10001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
 ENTRYPOINT ["dotnet", "NexusOps.Api.dll"]

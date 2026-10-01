@@ -1,0 +1,32 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-dotnet-pdb
+  namespace: nexusops
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend-dotnet
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-ai-fastapi-pdb
+  namespace: nexusops
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend-ai-fastapi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: nexusops
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: postgres

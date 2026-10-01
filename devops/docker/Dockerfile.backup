@@ -1,6 +1,6 @@
 FROM alpine:3.19
 
-# Install PostgreSQL client 16, OpenSSL, Bash, Gzip, Curl, AWS CLI
+# Security: Install PostgreSQL client 16, OpenSSL, Bash, Gzip, Curl, AWS CLI
 RUN apk add --no-cache \
     bash \
     postgresql16-client \
@@ -10,17 +10,24 @@ RUN apk add --no-cache \
     aws-cli \
     busybox-suid \
     findutils \
-    coreutils
+    coreutils \
+    && addgroup -g 10001 backupgroup \
+    && adduser -u 10001 -G backupgroup -D backupuser
 
-# Create backup directory
+# Create backup directory & assign permissions
 WORKDIR /app
-RUN mkdir -p /backups
+RUN mkdir -p /backups && chown -R backupuser:backupgroup /backups /app
 
 # Copy backup script and crontab
-COPY devops/scripts/backup_restore.sh /app/backup_restore.sh
+COPY --chown=backupuser:backupgroup devops/scripts/backup_restore.sh /app/backup_restore.sh
 COPY devops/docker/crontab /etc/crontabs/root
 
 RUN chmod +x /app/backup_restore.sh && chmod 0644 /etc/crontabs/root
+
+USER 10001:10001
+
+HEALTHCHECK --interval=60s --timeout=5s --start-period=10s --retries=3 \
+  CMD pgrep crond || exit 1
 
 # Entrypoint runs cron daemon in foreground
 CMD ["crond", "-f", "-l", "2"]
