@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remediation-operator
+  namespace: nexusops
+  labels:
+    app: remediation-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: remediation-operator
+  template:
+    metadata:
+      labels:
+        app: remediation-operator
+    spec:
+      serviceAccountName: remediation-operator-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: operator
+        image: python:3.11-slim
+        command: ["python3", "-u", "/app/remediation_operator.py"]
+        workingDir: /app
+        volumeMounts:
+        - name: operator-code
+          mountPath: /app
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: operator-code
+        configMap:
+          name: remediation-operator-code
